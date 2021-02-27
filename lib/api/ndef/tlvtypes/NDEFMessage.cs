@@ -19,7 +19,8 @@ namespace CSharp.NFC.NDEF
         /// </summary>
         public override byte TagByte { get => 0x03; }
         public NDEFRecord Record { get; set; }
-        public int TotalHeaderLength { get; set; }
+        public int TotalHeaderLength { get; set; }        
+        public int ContentPayloadLength { get; set; }
 
         public NDEFMessage() { }
 
@@ -80,7 +81,14 @@ namespace CSharp.NFC.NDEF
                     type.BuildRecordFromBytes(bytes.Skip(bytesReadToSkip).Take(type.HeaderLength).ToArray());                    
                     record.RecordType = type;
                     message.TotalHeaderLength = bytesReadToSkip += type.HeaderLength;
-                    message.Record = record;                    
+                    message.Record = record;
+
+                    byte[] payloadLengthClone = record.PayloadLengthField.Take(record.PayloadLengthField.Length).ToArray();
+                    while(payloadLengthClone.Length < 4)
+                    {
+                        payloadLengthClone = payloadLengthClone.Concat(new byte[] { 0 }).ToArray();
+                    }
+                    message.ContentPayloadLength = BitConverter.ToInt32(payloadLengthClone, 0) - record.RecordType.HeaderLength;
                 }
             }
             else
@@ -90,22 +98,22 @@ namespace CSharp.NFC.NDEF
             return message;
         }
 
-        public bool ReadByesIntoMessage(byte[] bytes)
-        {
-            bool keepReading = bytes.Length > 0;
-            if (keepReading)
-            {
-                int maxIndexToCopy = bytes.Length;
-                int terminatorIndex = bytes.ToList().FindIndex(b => b == new Terminator().TagByte);
-                if (terminatorIndex != -1)
-                {
-                    keepReading = false;
-                    maxIndexToCopy = terminatorIndex;
-                }
-                this.Record.RecordType.AddTextToPayload(bytes.Take(maxIndexToCopy).ToArray());
-            }            
-            return keepReading;
-        }                
+        //public bool ReadByesIntoMessage(byte[] bytes)
+        //{
+        //    bool keepReading = bytes.Length > 0;
+        //    if (keepReading)
+        //    {
+        //        int maxIndexToCopy = bytes.Length;
+        //        int terminatorIndex = bytes.ToList().FindIndex(b => b == new Terminator().TagByte);
+        //        if (terminatorIndex != -1)
+        //        {
+        //            keepReading = false;
+        //            maxIndexToCopy = terminatorIndex;
+        //        }
+        //        this.Record.RecordType.AddTextToPayload(bytes.Take(maxIndexToCopy).ToArray());
+        //    }            
+        //    return keepReading;
+        //}                
 
         public override byte[] GetFormattedBlock()
         {

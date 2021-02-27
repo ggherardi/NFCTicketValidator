@@ -82,7 +82,7 @@ namespace CSharp.NFC.Readers
         #region Card connection
         public NFCOperation ConnectCard<T>() where T : NFCCard, new()
         {
-            _logger.Log("Connecting card..");
+            Log("Connecting card");
             NFCOperation operation = new NFCOperation();
             _protocol = 0;
             int cardInt = -1;
@@ -105,6 +105,7 @@ namespace CSharp.NFC.Readers
             {
                 throw new Exception(Winscard.GetScardErrMsg(operation.Status));
             }
+            Log($"Connected card with UID: {BitConverter.ToString(_connectedCard.CardUIDBytes)}");
             return operation;
         }
 
@@ -133,15 +134,17 @@ namespace CSharp.NFC.Readers
             return operation;
         }        
 
-        public NFCOperation Transmit(NFCOperation operation, int responseBufferLength = 255)
+        private NFCOperation Transmit(NFCOperation operation, int responseBufferLength = 255)
         {
             try
             {
+                Log($"< {operation.WrappedCommandAsHex.Replace('-', ' ')}");
                 byte[] responseBuffer = new byte[responseBufferLength];
                 int responseLength = responseBuffer.Length;
                 operation.Status = Winscard.SCardTransmit(_connectedCard.CardNumber, ref _standardRequest, ref operation.WrappedCommand[0], operation.WrappedCommand.Length, ref _standardRequest, ref responseBuffer[0], ref responseLength);
                 operation.ResponseBuffer = responseBuffer;
                 operation.ElaborateResponse();
+                Log($"> {operation.ResponseAsHexString.Replace('-', ' ')}");
             }
             catch (Exception ex)
             {
@@ -150,7 +153,7 @@ namespace CSharp.NFC.Readers
             return operation;
         }
 
-        public NFCOperation TransmitDirectCommand(byte[] directCommand)
+        private NFCOperation TransmitDirectCommand(byte[] directCommand)
         {
             return Transmit(new NFCOperation(Get_DirectTransmitCommand(directCommand)));
         }
@@ -162,14 +165,16 @@ namespace CSharp.NFC.Readers
             return Transmit(new NFCOperation(Get_GetUIDCommand()));
         }
 
-        public NFCOperation ReadBlocks(byte startingBlock, int length)
+        private NFCOperation ReadBlocks(byte startingBlock, int length)
         {
+            Log("Command: ReadBlocks");
             return Transmit(new NFCOperation(Get_ReadBinaryBlocksCommand(startingBlock, length)));
         }
 
         public NFCOperation ReadBlocks(byte startingBlock)
         {
-            return ReadBlocks(startingBlock, ConnectedCard.MaxReadableBytes);
+            NFCOperation operation = ReadBlocks(startingBlock, ConnectedCard.MaxReadableBytes);
+            return operation;
         }
 
         public NFCOperation ReadValue(byte block)
@@ -179,6 +184,7 @@ namespace CSharp.NFC.Readers
 
         public NDEFOperation GetNDEFMessagesOperation()
         {
+            Log("Reading NDEF Message");
             NDEFOperation ndefOperation = new NDEFOperation();
             try
             {
@@ -189,14 +195,16 @@ namespace CSharp.NFC.Readers
                 bytesToRead = bytesToRead.Skip(message.TotalHeaderLength).ToArray();
                 if (message.Length > 0)
                 {
-                    int i = 2;
-                    while (message.ReadByesIntoMessage(bytesToRead))
-                    {
-                        nfcOperation = ReadBlocks((byte)(4 * i));
-                        bytesToRead = nfcOperation.ReaderCommand.Payload.PayloadBytes;
-                        ndefOperation.Operations.Add(nfcOperation);
-                        i++;
-                    }
+                    NDEFStreamReader streamReader = new NDEFStreamReader(this, message);
+                    streamReader.ReadBytes();
+                    //int i = 2;
+                    //while (message.ReadByesIntoMessage(bytesToRead))
+                    //{
+                        //nfcOperation = ReadBlocks((byte)(4 * i));
+                        //bytesToRead = nfcOperation.ReaderCommand.Payload.PayloadBytes;
+                        //ndefOperation.Operations.Add(nfcOperation);
+                        //i++;
+                    //}
                 }
                 ndefOperation.NDEFMessage = message;
             }
@@ -204,14 +212,14 @@ namespace CSharp.NFC.Readers
             {
                 ManageException(ex);
             }
+            CommiLogWrite();
             return ndefOperation;
         }
 
         public NDEFPayload GetNDEFPayload()
         {
-            NDEFPayload payload = new NDEFPayload();
             NDEFOperation operation = GetNDEFMessagesOperation();
-            payload = operation.NDEFMessage.Record?.RecordType.GetPayload();
+            NDEFPayload payload = operation.NDEFMessage.Record?.RecordType.GetPayload();
             return payload;
         }
         #endregion
@@ -219,6 +227,7 @@ namespace CSharp.NFC.Readers
         #region Writing commands
         private NFCOperation WriteBlocks(byte blockNumber, byte[] dataIn, int numberOfBytesToUpdate)
         {
+            Log("Command: WriteBlock");
             return Transmit(new NFCOperation(Get_UpdateBinaryBlockCommand(blockNumber, dataIn, numberOfBytesToUpdate)));
         }
 
@@ -245,6 +254,7 @@ namespace CSharp.NFC.Readers
 
         private List<NFCOperation> WriteTextNDEFMessage(byte[] textBytes, int startingPage, string password = "")
         {
+            Log("Writing Text NDEF Message");
             List<NFCOperation> operations = null;
             try
             {
@@ -264,6 +274,7 @@ namespace CSharp.NFC.Readers
             {
                 ManageException(ex);
             }
+            CommiLogWrite();
             return operations;
         }
 
@@ -331,11 +342,24 @@ namespace CSharp.NFC.Readers
 
         public List<NFCOperation> SetupCardSecurityConfiguration(byte[] securityConfigurationBytes)
         {
-            return WriteBlocks(securityConfigurationBytes, _connectedCard.UserConfigurationStartingPage);
+            Log("SetupCardSecurityConfiguration");
+            List<NFCOperation> operations = WriteBlocks(securityConfigurationBytes, _connectedCard.UserConfigurationStartingPage);
+            CommiLogWrite();
+            return operations;
         }
         #endregion
 
         #region Aux methods
+        private void Log(string message)
+        {
+            _logger.AddToLog(message);
+        }
+
+        public void CommiLogWrite()
+        {
+            _logger.CommitLogWrite();
+        }
+
         private void ManageException(Exception ex)
         {
             _logger.ManageException(ex);

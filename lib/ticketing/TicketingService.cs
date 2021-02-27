@@ -32,7 +32,6 @@ namespace Ticketing
 
         public List<NFCOperation> WriteTicket()
         {
-            string encryptedTicket = string.Empty;
             SmartTicket ticket = new SmartTicket() // Sample ticket, I need to replace it with the correct object
             {
                 Credit = 10.5,

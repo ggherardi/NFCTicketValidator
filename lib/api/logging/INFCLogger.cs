@@ -8,7 +8,8 @@ namespace CSharp.NFC
 {
     public interface INFCLogger
     {
-        void Log(string message);
+        void AddToLog(string message);
+        void CommitLogWrite();
         void ManageException(Exception ex);
     }
 }

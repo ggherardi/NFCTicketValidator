@@ -10,6 +10,7 @@ namespace CSharp.NFC
 {
     public class WindowsLogger : INFCLogger
     {
+        private List<string> _logLines = new List<string>();
         private string _folderName = "NFCTicketValidatorLogs";
         private string _logFileName = "NFCTicketValidatorLog.txt";
         private StorageFolder _folder;
@@ -50,17 +51,30 @@ namespace CSharp.NFC
             }
         }
 
-        public async void Log(string message)
+        public void AddToLog(string message)
         {
-            if(_logFile != null)
-            {
-                await FileIO.AppendTextAsync(_logFile, $"[{DateTime.Now.ToString("G")}] Information: {message}{Environment.NewLine}");
-            }            
+            _logLines.Add($"[{DateTime.Now.ToString("G")}] Information: {message}");
         }
 
         public async void ManageException(Exception ex)
         {
-            await FileIO.AppendTextAsync(_logFile, $"[{DateTime.Now.ToString("G")}] Exception: {ex.Message}{Environment.NewLine}");
+            if(_logFile != null)
+            {
+                await FileIO.AppendTextAsync(_logFile, $"[{DateTime.Now.ToString("G")}] Exception: {ex.Message}{Environment.NewLine}");
+            }
+        }
+
+        public async void CommitLogWrite()
+        {
+            try
+            {
+                await FileIO.AppendLinesAsync(_logFile, _logLines);
+
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

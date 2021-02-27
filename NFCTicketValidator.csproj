@@ -129,6 +129,7 @@
     <Compile Include="lib\api\ndef\NDEFPayload.cs" />
     <Compile Include="lib\api\ndef\NDEFRecord.cs" />
     <Compile Include="lib\api\ndef\NDEFRecordType.cs" />
+    <Compile Include="lib\api\ndef\NDEFStreamReader.cs" />
     <Compile Include="lib\api\ndef\recordtypes\RTDText.cs" />
     <Compile Include="lib\api\ndef\TLVBlock.cs" />
     <Compile Include="lib\api\ndef\tlvtypes\NDEFMessage.cs" />

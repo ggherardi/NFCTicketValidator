@@ -29,7 +29,7 @@ namespace NFCTicketValidator
     public sealed partial class MainPage : Page
     {
         private NFCReader TicketValidator;
-        public SmartTicket Ticket;
+        public SmartTicket Ticket { get; set; }
 
         public MainPage()
         {
@@ -57,5 +57,64 @@ namespace NFCTicketValidator
             TicketingService service = new TicketingService(TicketValidator, TicketValidator.ConnectedCard.CardUIDBytes);
             //WriteCardInfo(card);
         }
+
+        private void btnValidateTicket_Click(object sender, RoutedEventArgs e)
+        {
+            NFCOperation cardGuidOperation = TicketValidator.GetCardGuid();            
+            byte[] cardGuidBytes = cardGuidOperation.ReaderCommand.Payload.PayloadBytes;
+            TicketingService ticketingService = new TicketingService(TicketValidator, cardGuidBytes);
+            WriteOperationResults(ticketingService.WriteTicket());
+            Ticket = ticketingService.ReadTicket();
+
+            //Ticket = ticketingService.ReadTicket();
+            //if (ticket != null)
+            //{
+            //    WriteMessageAsync(lbl, ticket.Credit.ToString());
+            //}
+        }
+
+        #region AuxMethods
+        private void WriteOperationResults(List<NFCOperation> operations)
+        {
+            //List<string> results = new List<string>();
+            //foreach (NFCOperation op in operations)
+            //{
+            //    results.Add(op.ReaderCommand.Response.CommandStatus.Result.ToString());
+            //}
+            //lvOperationResults.ItemsSource = results;
+        }
+
+        private void Authenticate()
+        {
+            //if (!string.IsNullOrEmpty(txtOperationPassword.Text))
+            //{
+            //    TicketValidator.Authenticate(txtOperationPassword.Text);
+            //}
+        }
+
+        private async void ManageExceptionAsync(Exception ex)
+        {
+            //await this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            //{
+            //    txtMessages.Text = ex.Message;
+            //});
+        }
+
+        private async void WriteMessageAsync(TextBlock textBlock, string message)
+        {
+            await this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                textBlock.Text = message;
+            });
+        }
+
+        private async void AppendMessageAsync(TextBlock textBlock, string message)
+        {
+            await this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                textBlock.Text = $"{textBlock.Text}{Environment.NewLine}{message}";
+            });
+        }
+        #endregion
     }
 }

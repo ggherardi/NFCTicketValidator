@@ -9,7 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="655" Width="880">
 
     <Grid>
-        <TextBlock HorizontalAlignment="Center" Height="91" Margin="0,22,0,0" Text="{x:Bind Ticket}" TextWrapping="Wrap" VerticalAlignment="Top" Width="825"/>
-
+        <TextBlock HorizontalAlignment="Center" Height="91" Margin="0,22,0,0" Text="{x:Bind Ticket, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="825"/>
+        <Button x:Name="btnValidateTicket" Content="Validate Ticket" Height="45" Margin="28,128,0,0" VerticalAlignment="Top" Width="233" Click="btnValidateTicket_Click" />
     </Grid>
 </Page>
