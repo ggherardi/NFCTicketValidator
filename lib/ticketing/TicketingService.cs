@@ -14,52 +14,58 @@ namespace Ticketing
     {
         string _password;
         byte[] _cardID;
-        NFCReader _ticketValidator;
+        NFCReader _nfcReader;
+        SmartTicket _ticket;
+        public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
         public TicketingService(NFCReader ticketValidator, byte[] cardID, string password) 
         {
             _cardID = cardID;
-            _ticketValidator = ticketValidator;
+            _nfcReader = ticketValidator;
             _password = password;
         }
 
         public TicketingService(NFCReader ticketValidator, byte[] cardID) : this(ticketValidator, cardID, string.Empty) { }
 
-        public void ValidateTicket()
+        public void ConnectTicket()
         {
-
+            NDEFPayload payload = _nfcReader.GetNDEFPayload();
+            if (payload != null)
+            {
+                _ticket = TicketEncryption.DecryptTicket(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
+            }
         }
 
-        public List<NFCOperation> WriteTicket()
+        /// <summary>
+        /// Adds the specified amount to the credit of the connected ticket
+        /// </summary>
+        /// <param name="creditAmount"></param>
+        public void AddCredit(double creditAmount)
         {
-            SmartTicket ticket = new SmartTicket() // Sample ticket, I need to replace it with the correct object
-            {
-                Credit = 10.5,
-                Type = SmartTicket.TicketType.BIT,
-                CurrentValidation = DateTime.Now,
-                SessionValidation = DateTime.Now.AddHours(-10),
-                SessionExpense = 3.0,
-                CardID = new byte[] { 0x04, 0x15, 0x91, 0x8A, 0xCB, 0x42, 0x20 }
-            };            
-            byte[] encryptedTicketBytes = TicketEncryption.EncryptTicket(ticket, TicketEncryption.GetPaddedIV(_cardID));
-            List<NFCOperation> operations = _ticketValidator.WriteTextNDEFMessage(encryptedTicketBytes, _password);
-            return operations;
+            _ticket.Credit += creditAmount;
+            WriteTicket();
+        }
+
+        public void ValidateTicket()
+        {         
+            // KEEP WORKING FROM HERE
+            //if(_ticket.CurrentValidation == DateTime.Now.AddMilliseconds())
         }
 
         public SmartTicket ReadTicket()
         {
-            return GetConnectedTicket();
+            NDEFPayload payload = _nfcReader.GetNDEFPayload();
+            SmartTicket ticket = TicketEncryption.DecryptTicket(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
+            return ticket;
         }
 
-        public SmartTicket GetConnectedTicket()
+        private List<NFCOperation> WriteTicket()
         {
-            SmartTicket ticket = null;
-            NDEFPayload payload = _ticketValidator.GetNDEFPayload();
-            if(payload != null)
-            {
-                ticket = TicketEncryption.DecryptTicket(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
-            }            
-            return ticket;
+            // Sample ticket
+            //SmartTicket ticket = new SmartTicket() { Credit = 10.5, Type = SmartTicketType.BIT, CurrentValidation = DateTime.Now, SessionValidation = DateTime.Now.AddHours(-10), SessionExpense = 3.0, CardID = new byte[] { 0x04, 0x15, 0x91, 0x8A, 0xCB, 0x42, 0x20 } };
+            byte[] encryptedTicketBytes = TicketEncryption.EncryptTicket(_ticket, TicketEncryption.GetPaddedIV(_cardID));
+            List<NFCOperation> operations = _nfcReader.WriteTextNDEFMessage(encryptedTicketBytes, _password);
+            return operations;
         }
     }
 }

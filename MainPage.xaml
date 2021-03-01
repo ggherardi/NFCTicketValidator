@@ -6,10 +6,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="655" Width="880">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="400" Width="600">
 
     <Grid>
-        <TextBlock HorizontalAlignment="Center" Height="91" Margin="0,22,0,0" Text="{x:Bind Ticket, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="825"/>
-        <Button x:Name="btnValidateTicket" Content="Validate Ticket" Height="45" Margin="28,128,0,0" VerticalAlignment="Top" Width="233" Click="btnValidateTicket_Click" />
+        <TextBlock HorizontalAlignment="Center" Height="91" Margin="0,22,0,0" Text="{x:Bind _viewModel.Ticket, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="609"/>
+        <Button x:Name="btnValidateTicket" Content="Validate Ticket" Height="45" Margin="28,345,0,0" VerticalAlignment="Top" Width="233" Click="btnValidateTicket_Click" />
+        <Button x:Name="btnAddCredit" Content="Add credit" Height="45" Margin="28,143,0,0" VerticalAlignment="Top" Width="233" Click="btnAddCredit_Click" />
+        <TextBox x:Name="txtboxCredit" HorizontalAlignment="Left" Height="45" Margin="286,143,0,0" Text="0" TextWrapping="Wrap" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="bntReadTicket" Content="Read Ticket" Height="45" Margin="339,345,0,0" VerticalAlignment="Top" Width="233" Click="bntReadTicket_Click" />
     </Grid>
 </Page>
