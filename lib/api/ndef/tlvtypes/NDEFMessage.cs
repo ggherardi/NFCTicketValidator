@@ -98,23 +98,6 @@ namespace CSharp.NFC.NDEF
             return message;
         }
 
-        //public bool ReadByesIntoMessage(byte[] bytes)
-        //{
-        //    bool keepReading = bytes.Length > 0;
-        //    if (keepReading)
-        //    {
-        //        int maxIndexToCopy = bytes.Length;
-        //        int terminatorIndex = bytes.ToList().FindIndex(b => b == new Terminator().TagByte);
-        //        if (terminatorIndex != -1)
-        //        {
-        //            keepReading = false;
-        //            maxIndexToCopy = terminatorIndex;
-        //        }
-        //        this.Record.RecordType.AddTextToPayload(bytes.Take(maxIndexToCopy).ToArray());
-        //    }            
-        //    return keepReading;
-        //}                
-
         public override byte[] GetFormattedBlock()
         {
             byte[] tlvBlock = new byte[] { TagByte };

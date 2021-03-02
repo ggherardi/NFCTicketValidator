@@ -22,6 +22,10 @@ namespace CSharp.NFC.NDEF
 
         public NDEFStreamReader() { }
 
+        /// <summary>
+        /// Read payload bytes using the length in the NDEF Header. Throws an exception if no TLV Terminator is found at the end of the payload.
+        /// </summary>
+        /// <returns></returns>
         public NDEFOperation ReadBytes()
         {
             NDEFOperation ndefOperation = new NDEFOperation();
@@ -36,6 +40,10 @@ namespace CSharp.NFC.NDEF
                 }
                 if (_remainingBytes - bytesToRead.Length < 0)
                 {
+                    if(bytesToRead[_remainingBytes] != new Terminator().TagByte)
+                    {
+                        throw new Exception("No TLV Terminator block found at the end of the payload.");
+                    }
                     bytesToRead = bytesToRead.Take(_remainingBytes).ToArray();
                 }
                 _remainingBytes -= bytesToRead.Length;                

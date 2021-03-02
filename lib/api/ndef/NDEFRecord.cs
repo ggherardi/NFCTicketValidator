@@ -44,9 +44,9 @@ namespace CSharp.NFC.NDEF
             {
                 Array.Reverse(payloadLength);
             }
+            int j = 3;            
             for (int i = 0; i < numberOfPayloadLengthFields; i++)
             {
-                int j = 3;
                 PayloadLengthField[i] = payloadLength[j--];
             }
 
@@ -73,7 +73,7 @@ namespace CSharp.NFC.NDEF
 
         public NDEFRecord(NDEFRecordType recordType, NDEFRecordFlag flag, bool chunked = false) : this(recordType, flag, 0, 0, chunked) { }
 
-        public NDEFRecord(NDEFRecordType recordType, bool chunked = false) : this(recordType, new NDEFRecordFlag(NDEFRecordFlag.MessageBegin.True, NDEFRecordFlag.MessageEnd.True, NDEFRecordFlag.Chunk.False, NDEFRecordFlag.ShortRecord.True, NDEFRecordFlag.IDLength.False, NDEFRecordFlag.TypeNameFormat.NFCForumWellKnownType), chunked) { }
+        public NDEFRecord(NDEFRecordType recordType, bool chunked = false) : this(recordType, new NDEFRecordFlag(NDEFRecordFlag.MessageBegin.True, NDEFRecordFlag.MessageEnd.True, chunked ? NDEFRecordFlag.Chunk.True : NDEFRecordFlag.Chunk.False, NDEFRecordFlag.ShortRecord.True, NDEFRecordFlag.IDLength.False, NDEFRecordFlag.TypeNameFormat.NFCForumWellKnownType), chunked) { }
 
         public NDEFRecord() { }
 

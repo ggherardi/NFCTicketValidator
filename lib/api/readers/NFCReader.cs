@@ -197,14 +197,6 @@ namespace CSharp.NFC.Readers
                 {
                     NDEFStreamReader streamReader = new NDEFStreamReader(this, message);
                     streamReader.ReadBytes();
-                    //int i = 2;
-                    //while (message.ReadByesIntoMessage(bytesToRead))
-                    //{
-                        //nfcOperation = ReadBlocks((byte)(4 * i));
-                        //bytesToRead = nfcOperation.ReaderCommand.Payload.PayloadBytes;
-                        //ndefOperation.Operations.Add(nfcOperation);
-                        //i++;
-                    //}
                 }
                 ndefOperation.NDEFMessage = message;
             }

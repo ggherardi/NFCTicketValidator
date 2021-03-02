@@ -9,23 +9,21 @@ namespace Ticketing
 {
     public class SmartTicket
     {
-        public double Credit { get; set; }
+        public double Credit { get; set; }        
         public SmartTicketType Type { get; set; }        
-        public DateTime CurrentValidation { get; set; }
-        public DateTime SessionValidation { get; set; }
+        public DateTime? CurrentValidation { get; set; }
+        public DateTime? SessionValidation { get; set; }
         public double SessionExpense { get;  set; }
         public byte[] CardID { get; set; }        
 
-        public override string ToString() => $"CardID: {CardID}, Type: {Type?.Name}, Credit: {Credit}";
+        public override string ToString() => $"CardID: {(CardID != null ? BitConverter.ToString(CardID) : string.Empty)}, Type: {Type?.Name}, Credit: {Credit}";
     }
 
     public abstract class TicketEnumeration
     {        
-        public string Name { get; private set; }
-        [JsonIgnore]
-        public double Cost { get; private set; }
-        [JsonIgnore]
-        public int DurationInMinutes { get; private set; }
+        public string Name { get; set; }
+        public double Cost { get; set; }
+        public int DurationInMinutes { get; set; }
 
         protected TicketEnumeration(string name, double cost, int durationInMinutes) => (Name, Cost, DurationInMinutes) = (name, cost, durationInMinutes);
         protected TicketEnumeration() { }

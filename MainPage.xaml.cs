@@ -75,6 +75,11 @@ namespace NFCTicketValidator
             _ticketService.AddCredit(double.Parse(txtboxCredit.Text));
         }
 
+        private void btnResetTicket_Click(object sender, RoutedEventArgs e)
+        {
+            _ticketService.ResetTicket();
+        }
+
         private void bntReadTicket_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.Ticket = _ticketService.ReadTicket();

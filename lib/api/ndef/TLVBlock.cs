@@ -24,6 +24,7 @@ namespace CSharp.NFC.NDEF
     /// 0x02: Flag byte (0x02 = 2, meaning: UTF8/16 = 0 (UTF8), Bit6 = 0 (Reserved), Bit5_0 = 00010 (Language Code with 2 bytes))
     /// 0x65: Language Code byte 1 (0x65 = "e")
     /// 0x6E: Language Code byte 2 (0x6E = "n") so the Language is "en" (English)
+    /// - Payload
     /// 0x61, 0x62, 0x63, 0x64, 0x65: Actual text Payload ("abcde")
     /// </summary>
     public abstract class TLVBlock

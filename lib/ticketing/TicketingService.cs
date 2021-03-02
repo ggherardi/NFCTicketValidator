@@ -46,10 +46,18 @@ namespace Ticketing
             WriteTicket();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ResetTicket()
+        {
+            _ticket = new SmartTicket() { Credit = 0, Type = SmartTicketType.BIT, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, CardID = _cardID };
+            WriteTicket();
+        }
+
         public void ValidateTicket()
-        {         
-            // KEEP WORKING FROM HERE
-            //if(_ticket.CurrentValidation == DateTime.Now.AddMilliseconds())
+        {
+            //if (_ticket.CurrentValidation == DateTime.Now.AddSeconds())
         }
 
         public SmartTicket ReadTicket()
