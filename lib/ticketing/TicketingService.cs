@@ -6,26 +6,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ticketing.Encryption;
+using NFCTicketing.Encryption;
 
-namespace Ticketing
+namespace NFCTicketing
 {
     public class TicketingService
     {
-        string _password;
-        byte[] _cardID;
-        NFCReader _nfcReader;
-        SmartTicket _ticket;
+        private string _password;
+        private byte[] _cardID;
+        private NFCReader _nfcReader;
+        private SmartTicket _ticket;
+        private IValidatorLocation _location;
+
         public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
-        public TicketingService(NFCReader ticketValidator, byte[] cardID, string password) 
+        public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location, string password) 
         {
             _cardID = cardID;
             _nfcReader = ticketValidator;
+            _location = location;
             _password = password;
         }
 
-        public TicketingService(NFCReader ticketValidator, byte[] cardID) : this(ticketValidator, cardID, string.Empty) { }
+        public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location) : this(ticketValidator, cardID, location, string.Empty) { }
 
         public void ConnectTicket()
         {
@@ -46,18 +49,44 @@ namespace Ticketing
             WriteTicket();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void ResetTicket()
         {
-            _ticket = new SmartTicket() { Credit = 0, Type = SmartTicketType.BIT, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, CardID = _cardID };
+            _ticket = new SmartTicket() { Credit = 0, TicketTypeName = SmartTicketType.BIT.Name, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, CardID = _cardID };
             WriteTicket();
         }
 
         public void ValidateTicket()
         {
-            //if (_ticket.CurrentValidation == DateTime.Now.AddSeconds())
+            try
+            {
+                if (_ticket.CurrentValidation == null)
+                {
+                    ChargeTicket(SmartTicketType.BIT);
+                    DateTime timestamp = DateTime.Now;
+                    _ticket.CurrentValidation = timestamp;
+                    _ticket.SessionValidation = timestamp;
+                }
+                if (_ticket.SessionExpense + _ticket.Type.Cost > _ticket.Type.NextTicketUpgrade.Cost)
+                {
+
+                }
+                WriteTicket();
+                _ticket = ReadTicket();
+            }
+            catch(Exception ex)
+            {
+                
+            }
+        }
+
+        private void ChargeTicket(SmartTicketType chargeType)
+        {
+            if(_ticket.Credit - chargeType.Cost < 0)
+            {
+                throw new Exception("Insufficient credit.");
+            }
+            _ticket.Credit -= chargeType.Cost;
+            _ticket.SessionExpense += chargeType.Cost;
         }
 
         public SmartTicket ReadTicket()

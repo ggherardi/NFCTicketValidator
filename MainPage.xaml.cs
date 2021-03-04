@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Ticketing;
+using NFCTicketing;
 using Windows.Devices.SmartCards;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -60,29 +60,40 @@ namespace NFCTicketValidator
         private void ConnectCard()
         {
             _ticketValidator.ConnectCard<Ntag215>();
-            _ticketService = new TicketingService(_ticketValidator, _ticketValidator.ConnectedCard.CardUIDBytes);
+            _ticketService = new TicketingService(_ticketValidator, _ticketValidator.ConnectedCard.CardUIDBytes, new BusLocation("home"));
+            // Uncomment below to reset ticket fast
+            //_ticketService.ResetTicket();
+            //
             _ticketService.ConnectTicket();
-            _viewModel.Ticket = _ticketService.ConnectedTicket;
+            RefreshTicketValue();
         }
 
         private void btnValidateTicket_Click(object sender, RoutedEventArgs e)
         {
             _ticketService.ValidateTicket();
+            RefreshTicketValue();
         }
 
         private void btnAddCredit_Click(object sender, RoutedEventArgs e)
         {
             _ticketService.AddCredit(double.Parse(txtboxCredit.Text));
+            RefreshTicketValue();
         }
 
         private void btnResetTicket_Click(object sender, RoutedEventArgs e)
         {
             _ticketService.ResetTicket();
+            RefreshTicketValue();
         }
 
         private void bntReadTicket_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.Ticket = _ticketService.ReadTicket();
+        }
+
+        private void RefreshTicketValue() 
+        {
+            _viewModel.Ticket = _ticketService.ConnectedTicket;
         }
     }
 

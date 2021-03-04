@@ -17,12 +17,10 @@ namespace CSharp.NFC
         private StorageFile _logFile;
 
         // I will manage big log files later
-        public WindowsLogger(string filePath)
+        public WindowsLogger()
         {
             EnsureFile();
         }
-
-        public WindowsLogger() : this("NFCLog.txt") { }
 
         private async void EnsureFile()
         {

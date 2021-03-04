@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Ticketing.Encryption
+namespace NFCTicketing.Encryption
 {
     /// <summary>
     /// This class decrpyts and encrypts the tickets. It should be placed on the server in order to keep the key more safe.
