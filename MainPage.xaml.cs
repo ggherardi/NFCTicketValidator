@@ -82,7 +82,7 @@ namespace NFCTicketValidator
 
         private void btnResetTicket_Click(object sender, RoutedEventArgs e)
         {
-            _ticketService.ResetTicket();
+            _ticketService.InitNewTicket();
             RefreshTicketValue();
         }
 

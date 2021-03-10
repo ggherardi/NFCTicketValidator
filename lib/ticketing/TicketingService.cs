@@ -49,7 +49,7 @@ namespace NFCTicketing
             WriteTicket();
         }
 
-        public void ResetTicket()
+        public void InitNewTicket()
         {
             _ticket = new SmartTicket() { Credit = 0, TicketTypeName = SmartTicketType.BIT.Name, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, CardID = _cardID };
             WriteTicket();
@@ -59,17 +59,36 @@ namespace NFCTicketing
         {
             try
             {
-                if (_ticket.CurrentValidation == null)
+                DateTime timeStamp = DateTime.Now;
+                if (_ticket.SessionValidation == null)
                 {
-                    ChargeTicket(SmartTicketType.BIT);
-                    DateTime timestamp = DateTime.Now;
-                    _ticket.CurrentValidation = timestamp;
-                    _ticket.SessionValidation = timestamp;
+                    ResetTicketValidation();
                 }
-                if (_ticket.SessionExpense + _ticket.Type.Cost > _ticket.Type.NextTicketUpgrade.Cost)
+                else
                 {
-
-                }
+                    TimeSpan timeSinceSessionValidation = timeStamp - (DateTime)_ticket.SessionValidation;
+                    if (timeSinceSessionValidation.Minutes < _ticket.Type.DurationInMinutes)
+                    {
+                        // ticket still valid management
+                    }
+                    else if (timeSinceSessionValidation.Minutes > _ticket.Type.NextTicketUpgrade.DurationInMinutes)
+                    {
+                        // Ticket is expired for both the current ticket type and the upgraded ticket type
+                        ResetTicketValidation();
+                    }
+                    else
+                    {
+                        if((timeStamp - (DateTime)_ticket.CurrentValidation).Minutes < SmartTicketType.BIT.DurationInMinutes)
+                        {
+                            // ticket still valid management
+                        }                        
+                        else if (_ticket.SessionExpense + _ticket.Type.Cost >= _ticket.Type.NextTicketUpgrade.Cost)
+                        {
+                            // Upgrade the ticket since it would be more cost efficient than buying a new base ticket
+                            UpgradeTicket();
+                        }
+                    }                        
+                }                               
                 WriteTicket();
                 _ticket = ReadTicket();
             }
@@ -77,6 +96,23 @@ namespace NFCTicketing
             {
                 
             }
+        }
+
+        private void ResetTicketValidation()
+        {
+            ChargeTicket(SmartTicketType.BIT);
+            DateTime timestamp = DateTime.Now;
+            _ticket.CurrentValidation = timestamp;
+            _ticket.SessionValidation = timestamp;
+        }
+
+        private void UpgradeTicket()
+        {
+            double expense = _ticket.Type.NextTicketUpgrade.Cost - _ticket.SessionExpense;
+            _ticket.Credit -= expense;
+            _ticket.SessionExpense += expense;
+            _ticket.Type = (SmartTicketType)_ticket.Type.NextTicketUpgrade;
+            
         }
 
         private void ChargeTicket(SmartTicketType chargeType)
