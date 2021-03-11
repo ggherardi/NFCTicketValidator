@@ -12,11 +12,12 @@ namespace NFCTicketing
 {
     public class TicketingService
     {
-        private string _password;
-        private byte[] _cardID;
-        private NFCReader _nfcReader;
+        private readonly string _password;
+        private readonly byte[] _cardID;
+        private readonly NFCReader _nfcReader;
+        private readonly IValidatorLocation _location;
         private SmartTicket _ticket;
-        private IValidatorLocation _location;
+        private DateTime _timestamp;
 
         public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
@@ -55,44 +56,55 @@ namespace NFCTicketing
             WriteTicket();
         }
 
+        /// <summary>
+        /// Main business logic, check flowchart.png
+        /// </summary>
         public void ValidateTicket()
         {
             try
             {
-                DateTime timeStamp = DateTime.Now;
+                _timestamp = DateTime.Now;
                 if (_ticket.SessionValidation == null)
                 {
                     ResetTicketValidation();
                 }
                 else
                 {
-                    TimeSpan timeSinceSessionValidation = timeStamp - (DateTime)_ticket.SessionValidation;
-                    if (timeSinceSessionValidation.Minutes < _ticket.Type.DurationInMinutes)
+                    TimeSpan timeSinceFirstValidation = _timestamp - (DateTime)_ticket.SessionValidation;
+                    if (timeSinceFirstValidation.TotalMinutes < _ticket.Type.DurationInMinutes)
                     {
-                        // ticket still valid management
+                        ManageValidTicket();
                     }
-                    else if (timeSinceSessionValidation.Minutes > _ticket.Type.NextTicketUpgrade.DurationInMinutes)
+                    else if (_ticket.Type.NextTicketUpgrade == null || timeSinceFirstValidation.TotalMinutes > _ticket.Type.NextTicketUpgrade.DurationInMinutes)
                     {
                         // Ticket is expired for both the current ticket type and the upgraded ticket type
                         ResetTicketValidation();
                     }
                     else
                     {
-                        if((timeStamp - (DateTime)_ticket.CurrentValidation).Minutes < SmartTicketType.BIT.DurationInMinutes)
+                        if((_timestamp - (DateTime)_ticket.CurrentValidation).TotalMinutes < SmartTicketType.BIT.DurationInMinutes)
                         {
-                            // ticket still valid management
+                            ManageValidTicket();
                         }                        
-                        else if (_ticket.SessionExpense + _ticket.Type.Cost >= _ticket.Type.NextTicketUpgrade.Cost)
+                        else
                         {
-                            // Upgrade the ticket since it would be more cost efficient than buying a new base ticket
-                            UpgradeTicket();
+                            if (_ticket.Type.NextTicketUpgrade != null && _ticket.SessionExpense + SmartTicketType.BIT.Cost >= _ticket.Type.NextTicketUpgrade.Cost)
+                            {
+                                // Upgrade the ticket since it would be more cost efficient than buying a new base ticket
+                                UpgradeTicket();
+                            }
+                            else
+                            {
+                                ChargeTicket(SmartTicketType.BIT.Cost);
+                                _ticket.CurrentValidation = _timestamp;
+                            }
                         }
                     }                        
                 }                               
                 WriteTicket();
                 _ticket = ReadTicket();
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 
             }
@@ -100,29 +112,39 @@ namespace NFCTicketing
 
         private void ResetTicketValidation()
         {
-            ChargeTicket(SmartTicketType.BIT);
-            DateTime timestamp = DateTime.Now;
-            _ticket.CurrentValidation = timestamp;
-            _ticket.SessionValidation = timestamp;
+            if(_timestamp == null)
+            {
+                _timestamp = DateTime.Now;
+            }
+            ChargeTicket(SmartTicketType.BIT.Cost);
+            _ticket.CurrentValidation = _timestamp;
+            _ticket.SessionValidation = _timestamp;
         }
 
         private void UpgradeTicket()
         {
-            double expense = _ticket.Type.NextTicketUpgrade.Cost - _ticket.SessionExpense;
-            _ticket.Credit -= expense;
-            _ticket.SessionExpense += expense;
-            _ticket.Type = (SmartTicketType)_ticket.Type.NextTicketUpgrade;
-            
+            double upgradeCost = _ticket.Type.NextTicketUpgrade.Cost - _ticket.SessionExpense;
+            ChargeTicket(upgradeCost);
+            _ticket.Type = (SmartTicketType)_ticket.Type.NextTicketUpgrade;            
         }
 
-        private void ChargeTicket(SmartTicketType chargeType)
+        private void ManageValidTicket()
         {
-            if(_ticket.Credit - chargeType.Cost < 0)
+            TimeSpan timeSinceLastValidation = _timestamp - (DateTime)_ticket.CurrentValidation;
+            if (timeSinceLastValidation.TotalMinutes > SmartTicketType.BIT.DurationInMinutes)
+            {
+                _ticket.CurrentValidation = _timestamp;
+            }
+        }
+
+        private void ChargeTicket(double amount)
+        {
+            if (_ticket.Credit - amount < 0)
             {
                 throw new Exception("Insufficient credit.");
             }
-            _ticket.Credit -= chargeType.Cost;
-            _ticket.SessionExpense += chargeType.Cost;
+            _ticket.Credit -= amount;
+            _ticket.SessionExpense += amount;
         }
 
         public SmartTicket ReadTicket()

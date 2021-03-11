@@ -40,11 +40,16 @@ namespace NFCTicketing
 
     public class SmartTicketType : TicketEnumeration
     {
+        //public static SmartTicketType CIS = new SmartTicketType("CIS", 24, 10080);
+        //public static SmartTicketType ROMA72 = new SmartTicketType("ROMA72", 18, 4320, CIS);
+        //public static SmartTicketType ROMA48 = new SmartTicketType("ROMA48", 12.50, 2880, ROMA72);
+        //public static SmartTicketType ROMA24 = new SmartTicketType("ROMA24", 7, 1440, ROMA48);
+        //public static SmartTicketType BIT = new SmartTicketType("BIT", 1.5, 100, ROMA24);
         public static SmartTicketType CIS = new SmartTicketType("CIS", 24, 10080);
-        public static SmartTicketType ROMA72 = new SmartTicketType("ROMA72", 18, 4320, CIS);
-        public static SmartTicketType ROMA48 = new SmartTicketType("ROMA48", 12.50, 2880, ROMA72);
-        public static SmartTicketType ROMA24 = new SmartTicketType("ROMA24", 7, 1440, ROMA48);
-        public static SmartTicketType BIT = new SmartTicketType("BIT", 1.5, 100, ROMA24);
+        public static SmartTicketType ROMA72 = new SmartTicketType("ROMA72", 18, 300, CIS);
+        public static SmartTicketType ROMA48 = new SmartTicketType("ROMA48", 12.50, 30, ROMA72);
+        public static SmartTicketType ROMA24 = new SmartTicketType("ROMA24", 7, 10, ROMA48);
+        public static SmartTicketType BIT = new SmartTicketType("BIT", 1.5, 1, ROMA24);
 
         public SmartTicketType(string name, double cost, int durationInMinutes, TicketEnumeration nextTicketUpgrade = null) : base(name, cost, durationInMinutes, nextTicketUpgrade) { }
         public SmartTicketType() { }
