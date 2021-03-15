@@ -16,20 +16,24 @@ namespace NFCTicketing
         private readonly byte[] _cardID;
         private readonly NFCReader _nfcReader;
         private readonly IValidatorLocation _location;
+        private readonly IValidationStorage _storage;
         private SmartTicket _ticket;
         private DateTime _timestamp;
 
         public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
-        public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location, string password) 
+        public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location, IValidationStorage storage, string password) 
         {
             _cardID = cardID;
             _nfcReader = ticketValidator;
             _location = location;
             _password = password;
+            _storage = storage ?? new LocalDB();
         }
 
-        public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location) : this(ticketValidator, cardID, location, string.Empty) { }
+        public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location) : this(ticketValidator, cardID, location, null, string.Empty) { }
+
+        public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location, IValidationStorage storage) : this(ticketValidator, cardID, location, storage, string.Empty) { }
 
         public void ConnectTicket()
         {
@@ -97,6 +101,7 @@ namespace NFCTicketing
                             {
                                 ChargeTicket(SmartTicketType.BIT.Cost);
                                 _ticket.CurrentValidation = _timestamp;
+                                RegisterLocation();
                             }
                         }
                     }                        
@@ -119,6 +124,7 @@ namespace NFCTicketing
             ChargeTicket(SmartTicketType.BIT.Cost);
             _ticket.CurrentValidation = _timestamp;
             _ticket.SessionValidation = _timestamp;
+            RegisterLocation();
         }
 
         private void UpgradeTicket()
@@ -134,6 +140,7 @@ namespace NFCTicketing
             if (timeSinceLastValidation.TotalMinutes > SmartTicketType.BIT.DurationInMinutes)
             {
                 _ticket.CurrentValidation = _timestamp;
+                RegisterLocation();
             }
         }
 
@@ -145,6 +152,11 @@ namespace NFCTicketing
             }
             _ticket.Credit -= amount;
             _ticket.SessionExpense += amount;
+        }
+
+        private void RegisterLocation()
+        {
+            _storage.RegisterLocation(_location.GetLocation(), _cardID);
         }
 
         public SmartTicket ReadTicket()

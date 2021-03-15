@@ -142,8 +142,10 @@
     <Compile Include="lib\api\Utility.cs" />
     <Compile Include="lib\api\Winscard.cs" />
     <Compile Include="lib\ticketing\encryption\TicketEncryption.cs" />
-    <Compile Include="lib\ticketing\ValidatorLocation.cs" />
+    <Compile Include="lib\ticketing\storage\IValidationStorage.cs" />
+    <Compile Include="lib\ticketing\IValidatorLocation.cs" />
     <Compile Include="lib\ticketing\SmartTicket.cs" />
+    <Compile Include="lib\ticketing\storage\LocalDB.cs" />
     <Compile Include="lib\ticketing\TicketingService.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
