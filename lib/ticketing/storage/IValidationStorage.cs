@@ -8,6 +8,6 @@ namespace NFCTicketing
 {
     public interface IValidationStorage
     {
-        void RegisterLocation(string location, byte[] cardID);
+        void RegisterLocation(string location, byte[] cardID, DateTime validationTime);
     }
 }

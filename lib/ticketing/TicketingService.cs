@@ -156,7 +156,7 @@ namespace NFCTicketing
 
         private void RegisterLocation()
         {
-            _storage.RegisterLocation(_location.GetLocation(), _cardID);
+            _storage.RegisterLocation(_location.GetLocation(), _cardID, _timestamp);
         }
 
         public SmartTicket ReadTicket()

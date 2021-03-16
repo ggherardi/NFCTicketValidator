@@ -9,8 +9,8 @@ namespace NFCTicketing
 {
     public class LocalDB : IValidationStorage
     {
-        private string _connectionString = @"Data Source=USER-PC\SQLEXPRESS;Initial Catalog=NFCValidationStorage;Integrated Security=True";
-        public void RegisterLocation(string location, byte[] cardID)
+        private string _connectionString = @"Data Source=USER-PC\SQLEXPRESS;Initial Catalog=NFCValidationStorage;Integrated Security=SSPI";
+        public void RegisterLocation(string location, byte[] cardID, DateTime validationTime)
         {
             try
             {
@@ -18,17 +18,16 @@ namespace NFCTicketing
                 connection.Open();
                 string cardIDParameterName = "@cardid";
                 string locationParameterName = "@location";
-                string commandString = $"INSERT INTO Validation (CardID, Location) VALUES ({cardIDParameterName}, {locationParameterName})";
+                string validationTimeParameterName = "@validationTime";
+                string commandString = $"INSERT INTO Validation (CardID, Location, ValidationTime) VALUES ({cardIDParameterName}, {locationParameterName}, {validationTimeParameterName})";
                 SqlCommand command = new SqlCommand(commandString, connection);
                 command.Parameters.AddWithValue(cardIDParameterName, BitConverter.ToString(cardID));
-                command.Parameters.AddWithValue(locationParameterName, BitConverter.ToString(cardID));
+                command.Parameters.AddWithValue(locationParameterName, location);
+                command.Parameters.AddWithValue(validationTimeParameterName, validationTime);
                 command.ExecuteNonQuery();
                 connection.Close();
             }
-            catch(Exception ex)
-            {
-
-            }            
+            catch(Exception) { }            
         }
     }
 }
