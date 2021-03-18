@@ -115,6 +115,7 @@ namespace NFCTicketing
 
         private void ResetTicketValidation()
         {
+            _ticket.SessionExpense = 0;
             ChargeTicket(SmartTicketType.BIT.Cost);
             _ticket.CurrentValidation = _timestamp;
             _ticket.SessionValidation = _timestamp;            

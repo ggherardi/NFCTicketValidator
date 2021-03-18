@@ -21,7 +21,7 @@ namespace NFCTicketing
                 string locationParameter = "@location";
                 string validationTimeParameter = "@validationTime";
                 string encryptedTicketHashParameter = "@encryptedTicketHash";
-                string commandString = $"INSERT INTO Validation (CardID, Location, ValidationTime, EncryptedTicketHash) VALUES ({cardIDParameter}, {locationParameter}, {validationTimeParameter}, {encryptedTicketHashParameter})";
+                string commandString = $"INSERT INTO Validation (card_id, location, validation_time, encrypted_ticket) VALUES ({cardIDParameter}, {locationParameter}, {validationTimeParameter}, {encryptedTicketHashParameter})";
                 SqlCommand command = new SqlCommand(commandString, connection);
                 command.Parameters.AddWithValue(cardIDParameter, BitConverter.ToString(validation.CardID));
                 command.Parameters.AddWithValue(locationParameter, validation.Location);
@@ -38,15 +38,17 @@ namespace NFCTicketing
             try
             {
                 SqlConnection connection = new SqlConnection(_connectionString);
-                connection.Open();
-                string cardIDParameter = "@cardid";
+                connection.Open();                
                 string creditParameter = "@credit";
+                string ticketTypeParameter = "@ticketType";
                 string currentValidationParameter = "@currentValidation";
                 string sessionValidationParameter = "@sessionValidation";
                 string sessionExpenseParameter = "@sessionExpense";
-                string commandString = $"UPDATE SmartTicket SET Credit = {creditParameter}, CurrentValidation = {currentValidationParameter}, SessionValidation = {sessionValidationParameter}, SessionExpense = {sessionExpenseParameter} WHERE CardID = {cardIDParameter}";
+                string cardIDParameter = "@cardid";
+                string commandString = $"UPDATE SmartTicket SET credit = {creditParameter}, ticket_type = {ticketTypeParameter}, current_validation = {currentValidationParameter}, session_validation = {sessionValidationParameter}, session_expense = {sessionExpenseParameter} WHERE card_id = {cardIDParameter}";
                 SqlCommand command = new SqlCommand(commandString, connection);                
                 command.Parameters.AddWithValue(creditParameter, ticket.Credit);
+                command.Parameters.AddWithValue(ticketTypeParameter, ticket.TicketTypeName);
                 command.Parameters.AddWithValue(currentValidationParameter, ticket.CurrentValidation);
                 command.Parameters.AddWithValue(sessionValidationParameter, ticket.SessionValidation);
                 command.Parameters.AddWithValue(sessionExpenseParameter, ticket.SessionExpense);
