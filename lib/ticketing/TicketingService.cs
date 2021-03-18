@@ -20,6 +20,7 @@ namespace NFCTicketing
         private SmartTicket _ticket;
         private DateTime _timestamp;
         private string _encryptedTicketHash;
+        private TicketValidation _validation;
 
         public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
@@ -62,6 +63,7 @@ namespace NFCTicketing
         /// </summary>
         public void ValidateTicket()
         {
+            _validation = null;
             try
             {
                 _timestamp = DateTime.Now;
@@ -96,15 +98,14 @@ namespace NFCTicketing
                             }
                             else
                             {
-                                ChargeTicket(SmartTicketType.BIT.Cost);
-                                _ticket.CurrentValidation = _timestamp;
-                                RegisterLocation();
+                                ValidateBaseTicket();
                             }
                         }
                     }                        
                 }                               
                 WriteTicket();
                 _ticket = ReadTicket();
+                RegisterTicketUpdate();
             }
             catch(Exception)
             {
@@ -114,14 +115,10 @@ namespace NFCTicketing
 
         private void ResetTicketValidation()
         {
-            if(_timestamp == null)
-            {
-                _timestamp = DateTime.Now;
-            }
             ChargeTicket(SmartTicketType.BIT.Cost);
             _ticket.CurrentValidation = _timestamp;
-            _ticket.SessionValidation = _timestamp;
-            RegisterLocation();
+            _ticket.SessionValidation = _timestamp;            
+            RegisterValidation();
         }
 
         private void UpgradeTicket()
@@ -137,8 +134,15 @@ namespace NFCTicketing
             if (timeSinceLastValidation.TotalMinutes > SmartTicketType.BIT.DurationInMinutes)
             {
                 _ticket.CurrentValidation = _timestamp;
-                RegisterLocation();
+                RegisterValidation();
             }
+        }
+
+        private void ValidateBaseTicket()
+        {
+            ChargeTicket(SmartTicketType.BIT.Cost);
+            _ticket.CurrentValidation = _timestamp;
+            RegisterValidation();
         }
 
         private void ChargeTicket(double amount)
@@ -151,9 +155,14 @@ namespace NFCTicketing
             _ticket.SessionExpense += amount;
         }
 
-        private void RegisterLocation()
+        private void RegisterValidation()
         {
-            _storage.RegisterLocation(_location.GetLocation(), _cardID, _timestamp, _encryptedTicketHash);
+            _storage.RegisterValidation(new TicketValidation() { CardID = _ticket.CardID, Location = _location.GetLocation(), Time = _timestamp, EncryptedTicketHash = _encryptedTicketHash });
+        }
+
+        private void RegisterTicketUpdate()
+        {
+            _storage.RegisterTicketUpdate(_ticket);
         }
 
         public SmartTicket ReadTicket()

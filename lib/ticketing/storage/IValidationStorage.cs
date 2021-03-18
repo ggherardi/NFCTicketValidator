@@ -8,6 +8,7 @@ namespace NFCTicketing
 {
     public interface IValidationStorage
     {
-        void RegisterLocation(string location, byte[] cardID, DateTime validationTime, string encryptedTicketHash);
+        void RegisterValidation(TicketValidation validation);
+        void RegisterTicketUpdate(SmartTicket ticket); 
     }
 }
