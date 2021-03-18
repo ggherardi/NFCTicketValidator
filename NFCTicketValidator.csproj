@@ -145,7 +145,7 @@
     <Compile Include="lib\ticketing\storage\IValidationStorage.cs" />
     <Compile Include="lib\ticketing\IValidatorLocation.cs" />
     <Compile Include="lib\ticketing\SmartTicket.cs" />
-    <Compile Include="lib\ticketing\storage\LocalDB.cs" />
+    <Compile Include="lib\ticketing\storage\LocalDBStorage.cs" />
     <Compile Include="lib\ticketing\TicketingService.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

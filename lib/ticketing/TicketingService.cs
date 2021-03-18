@@ -19,6 +19,7 @@ namespace NFCTicketing
         private readonly IValidationStorage _storage;
         private SmartTicket _ticket;
         private DateTime _timestamp;
+        private string _encryptedTicketHash;
 
         public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
@@ -28,7 +29,7 @@ namespace NFCTicketing
             _nfcReader = ticketValidator;
             _location = location;
             _password = password;
-            _storage = storage ?? new LocalDB();
+            _storage = storage ?? new LocalDBStorage();
         }
 
         public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location) : this(ticketValidator, cardID, location, null, string.Empty) { }
@@ -37,11 +38,7 @@ namespace NFCTicketing
 
         public void ConnectTicket()
         {
-            NDEFPayload payload = _nfcReader.GetNDEFPayload();
-            if (payload != null)
-            {
-                _ticket = TicketEncryption.DecryptTicket(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
-            }
+            _ticket = ReadTicket();
         }
 
         /// <summary>
@@ -156,13 +153,14 @@ namespace NFCTicketing
 
         private void RegisterLocation()
         {
-            _storage.RegisterLocation(_location.GetLocation(), _cardID, _timestamp);
+            _storage.RegisterLocation(_location.GetLocation(), _cardID, _timestamp, _encryptedTicketHash);
         }
 
         public SmartTicket ReadTicket()
         {
             NDEFPayload payload = _nfcReader.GetNDEFPayload();
             SmartTicket ticket = TicketEncryption.DecryptTicket(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
+            _encryptedTicketHash = Encoding.Unicode.GetString(payload.Bytes);
             return ticket;
         }
 
