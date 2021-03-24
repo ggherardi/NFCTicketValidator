@@ -9,7 +9,7 @@ namespace NFCTicketing
     public interface IValidationStorage
     {
         void RegisterValidation(TicketValidation validation);
-        void RegisterTicketUpdate(SmartTicket ticket);
+        void RegisterTicketUpdate(EncryptableSmartTicket ticket);
         void RegisterTransaction(CreditTransaction transaction);
     }
 }

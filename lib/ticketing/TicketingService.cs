@@ -17,11 +17,11 @@ namespace NFCTicketing
         private readonly NFCReader _nfcReader;
         private readonly IValidatorLocation _location;
         private readonly IValidationStorage _storage;
-        private SmartTicket _ticket;
+        private EncryptableSmartTicket _ticket;
         private DateTime _timestamp;
         private string _encryptedTicketHash;
 
-        public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
+        public EncryptableSmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
         public TicketingService(NFCReader ticketValidator, byte[] cardID, IValidatorLocation location, IValidationStorage storage, string password) 
         {
@@ -45,7 +45,7 @@ namespace NFCTicketing
         /// Adds the specified amount to the credit of the connected ticket
         /// </summary>
         /// <param name="creditAmount"></param>
-        public void AddCredit(double creditAmount)
+        public void AddCredit(decimal creditAmount)
         {
             _ticket.Credit += creditAmount;
             WriteTicket();
@@ -54,7 +54,7 @@ namespace NFCTicketing
 
         public void InitNewTicket()
         {
-            _ticket = new SmartTicket() { Credit = 0, TicketTypeName = SmartTicketType.BIT.Name, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, UsageTimestamp = DateTime.Now, CardID = _cardID };
+            _ticket = new EncryptableSmartTicket() { Credit = 0, TicketTypeName = SmartTicketType.BIT.Name, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, UsageTimestamp = DateTime.Now, CardID = _cardID };
             WriteTicket();
         }
 
@@ -124,7 +124,7 @@ namespace NFCTicketing
 
         private void UpgradeTicket()
         {
-            double upgradeCost = _ticket.Type.NextTicketUpgrade.Cost - _ticket.SessionExpense;
+            decimal upgradeCost = _ticket.Type.NextTicketUpgrade.Cost - (decimal)_ticket.SessionExpense;
             ChargeTicket(upgradeCost);
             _ticket.Type = (SmartTicketType)_ticket.Type.NextTicketUpgrade;            
         }
@@ -146,7 +146,7 @@ namespace NFCTicketing
             RegisterValidation();
         }
 
-        private void ChargeTicket(double amount)
+        private void ChargeTicket(decimal amount)
         {
             if (_ticket.Credit - amount < 0)
             {
@@ -171,10 +171,10 @@ namespace NFCTicketing
             _storage.RegisterTransaction(new CreditTransaction() { CardId = _ticket.CardID, Location = _location.GetLocation(), Date = DateTime.Now, Amount = amount });
         }
 
-        public SmartTicket ReadTicket()
+        public EncryptableSmartTicket ReadTicket()
         {
             NDEFPayload payload = _nfcReader.GetNDEFPayload();
-            SmartTicket ticket = TicketEncryption.DecryptTicket<SmartTicket>(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
+            EncryptableSmartTicket ticket = TicketEncryption.DecryptTicket<EncryptableSmartTicket>(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
             _encryptedTicketHash = Encoding.Unicode.GetString(payload.Bytes);
             return ticket;
         }

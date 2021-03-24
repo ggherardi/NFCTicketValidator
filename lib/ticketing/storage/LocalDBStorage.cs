@@ -33,7 +33,7 @@ namespace NFCTicketing
             catch(Exception ex) { }            
         }
 
-        public void RegisterTicketUpdate(SmartTicket ticket)
+        public void RegisterTicketUpdate(EncryptableSmartTicket ticket)
         {
             try
             {

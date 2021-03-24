@@ -76,7 +76,7 @@ namespace NFCTicketValidator
 
         private void btnAddCredit_Click(object sender, RoutedEventArgs e)
         {
-            _ticketService.AddCredit(double.Parse(txtboxCredit.Text));
+            _ticketService.AddCredit(decimal.Parse(txtboxCredit.Text));
             RefreshTicketValue();
         }
 
@@ -110,9 +110,9 @@ namespace NFCTicketValidator
 
     public class ValidatorPrototypeViewModel : BindableBase
     {
-        private SmartTicket _ticket;
+        private EncryptableSmartTicket _ticket;
 
-        public SmartTicket Ticket
+        public EncryptableSmartTicket Ticket
         {
             get { return _ticket; }
             set { this._ticket = value; OnPropertyChanged(); }
@@ -120,7 +120,7 @@ namespace NFCTicketValidator
 
         public ValidatorPrototypeViewModel(MainPage page)
         {
-            _ticket = new SmartTicket();
+            _ticket = new EncryptableSmartTicket();
             _page = page;
         }
     }

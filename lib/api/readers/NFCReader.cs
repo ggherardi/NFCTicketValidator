@@ -204,7 +204,7 @@ namespace CSharp.NFC.Readers
             {
                 ManageException(ex);
             }
-            CommiLogWrite();
+            CommitLogWrite();
             return ndefOperation;
         }
 
@@ -266,7 +266,7 @@ namespace CSharp.NFC.Readers
             {
                 ManageException(ex);
             }
-            CommiLogWrite();
+            CommitLogWrite();
             return operations;
         }
 
@@ -336,7 +336,7 @@ namespace CSharp.NFC.Readers
         {
             Log("SetupCardSecurityConfiguration");
             List<NFCOperation> operations = WriteBlocks(securityConfigurationBytes, _connectedCard.UserConfigurationStartingPage);
-            CommiLogWrite();
+            CommitLogWrite();
             return operations;
         }
         #endregion
@@ -347,7 +347,7 @@ namespace CSharp.NFC.Readers
             _logger.AddToLog(message);
         }
 
-        public void CommiLogWrite()
+        public void CommitLogWrite()
         {
             _logger.CommitLogWrite();
         }
