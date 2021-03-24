@@ -20,7 +20,6 @@ namespace NFCTicketing
         private SmartTicket _ticket;
         private DateTime _timestamp;
         private string _encryptedTicketHash;
-        private TicketValidation _validation;
 
         public SmartTicket ConnectedTicket { get => _ticket; private set => _ticket = value; }
 
@@ -55,7 +54,7 @@ namespace NFCTicketing
 
         public void InitNewTicket()
         {
-            _ticket = new SmartTicket() { Credit = 0, TicketTypeName = SmartTicketType.BIT.Name, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, CardID = _cardID };
+            _ticket = new SmartTicket() { Credit = 0, TicketTypeName = SmartTicketType.BIT.Name, CurrentValidation = null, SessionValidation = null, SessionExpense = 0, UsageTimestamp = DateTime.Now, CardID = _cardID };
             WriteTicket();
         }
 
@@ -64,10 +63,10 @@ namespace NFCTicketing
         /// </summary>
         public void ValidateTicket()
         {            
-            _validation = null;
             try
             {
                 _timestamp = DateTime.Now;
+                _ticket.UsageTimestamp = _timestamp;
                 if (_ticket.SessionValidation == null)
                 {
                     ResetTicketValidation();
@@ -175,7 +174,7 @@ namespace NFCTicketing
         public SmartTicket ReadTicket()
         {
             NDEFPayload payload = _nfcReader.GetNDEFPayload();
-            SmartTicket ticket = TicketEncryption.DecryptTicket(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
+            SmartTicket ticket = TicketEncryption.DecryptTicket<SmartTicket>(payload.Bytes, TicketEncryption.GetPaddedIV(_cardID));
             _encryptedTicketHash = Encoding.Unicode.GetString(payload.Bytes);
             return ticket;
         }

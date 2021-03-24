@@ -17,7 +17,7 @@ namespace NFCTicketing.Encryption
         // Just a temporary sample key
         private static readonly byte[] AesKey = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
 
-        public static byte[] EncryptTicket(SmartTicket ticket, byte[] cardIV)
+        public static byte[] EncryptTicket(object ticket, byte[] cardIV)
         {
             byte[] encryptedTicketBytes = new byte[] { };
             string jsonTicket = JsonSerializer.Serialize(ticket);
@@ -35,9 +35,9 @@ namespace NFCTicketing.Encryption
             return encryptedTicketBytes;
         }
 
-        public static SmartTicket DecryptTicket(byte[] encryptedBytes, byte[] cardIV)
+        public static T DecryptTicket<T>(byte[] encryptedBytes, byte[] cardIV) where T : new()
         {
-            SmartTicket ticket = null;
+            T ticket = default(T);
             using (MemoryStream ms = new MemoryStream(encryptedBytes))
             {
                 Aes aes = Aes.Create();
@@ -47,7 +47,7 @@ namespace NFCTicketing.Encryption
                     using (StreamReader reader = new StreamReader(cstream))
                     {
                         string jsonTicket = reader.ReadToEnd();
-                        ticket = JsonSerializer.Deserialize<SmartTicket>(jsonTicket);
+                        ticket = JsonSerializer.Deserialize<T>(jsonTicket);
                     }
                 }
             }

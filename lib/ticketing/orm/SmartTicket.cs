@@ -16,10 +16,11 @@ namespace NFCTicketing
         public SmartTicketType Type { get; set; }        
         public DateTime? CurrentValidation { get; set; }
         public DateTime? SessionValidation { get; set; }
+        public DateTime UsageTimestamp { get; set; }
         public double SessionExpense { get;  set; }
         public byte[] CardID { get; set; }        
 
-        public override string ToString() => $"CardID: {(CardID != null ? BitConverter.ToString(CardID) : string.Empty)}, Type: {Type?.Name}, Credit: {Credit}, CurrentValidation: {CurrentValidation?.ToString("g")}, SessionExpense: {SessionExpense}";
+        public override string ToString() => $"CardID: {(CardID != null ? BitConverter.ToString(CardID) : string.Empty)}, Type: {Type?.Name}, Credit: {Credit}, CurrentValidation: {CurrentValidation?.ToString("g")}, SessionExpense: {SessionExpense}, UsageTimestamp: {UsageTimestamp:g}";
     }
 
     public abstract class TicketEnumeration
