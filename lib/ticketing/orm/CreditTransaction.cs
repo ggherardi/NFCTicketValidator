@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace NFCTicketing
 {
-    public class TicketValidation
+    public class CreditTransaction
     {
-        public byte[] CardID { get; set; }
+        public byte[] CardId { get; set; }
         public string Location { get; set; }
-        public DateTime Time { get; set; }        
-        public string EncryptedTicketHash { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime Date { get; set; }
     }
 }

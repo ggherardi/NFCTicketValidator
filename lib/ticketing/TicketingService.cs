@@ -50,6 +50,7 @@ namespace NFCTicketing
         {
             _ticket.Credit += creditAmount;
             WriteTicket();
+            RegisterTransaction((decimal)creditAmount);
         }
 
         public void InitNewTicket()
@@ -62,7 +63,7 @@ namespace NFCTicketing
         /// Main business logic, check flowchart.png
         /// </summary>
         public void ValidateTicket()
-        {
+        {            
             _validation = null;
             try
             {
@@ -158,12 +159,17 @@ namespace NFCTicketing
 
         private void RegisterValidation()
         {
-            _storage.RegisterValidation(new TicketValidation() { CardID = _ticket.CardID, Location = _location.GetLocation(), Time = _timestamp, EncryptedTicketHash = _encryptedTicketHash });
+            _storage.RegisterValidation(new TicketValidation() { CardId = _ticket.CardID, Location = _location.GetLocation(), Time = _timestamp, EncryptedTicketHash = _encryptedTicketHash });
         }
 
         private void RegisterTicketUpdate()
         {
             _storage.RegisterTicketUpdate(_ticket);
+        }
+
+        private void RegisterTransaction(decimal amount)
+        {
+            _storage.RegisterTransaction(new CreditTransaction() { CardId = _ticket.CardID, Location = _location.GetLocation(), Date = DateTime.Now, Amount = amount });
         }
 
         public SmartTicket ReadTicket()
