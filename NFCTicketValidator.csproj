@@ -119,36 +119,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="lib\api\cards\NFCCard.cs" />
-    <Compile Include="lib\api\cards\Ntag215.cs" />
-    <Compile Include="lib\api\controllers\NFCController.cs" />
-    <Compile Include="lib\api\controllers\PN532.cs" />
-    <Compile Include="lib\api\logging\INFCLogger.cs" />
-    <Compile Include="lib\api\logging\WindowsLogger.cs" />
-    <Compile Include="lib\api\ndef\NDEFOperation.cs" />
-    <Compile Include="lib\api\ndef\NDEFPayload.cs" />
-    <Compile Include="lib\api\ndef\NDEFRecord.cs" />
-    <Compile Include="lib\api\ndef\NDEFRecordType.cs" />
-    <Compile Include="lib\api\ndef\NDEFStreamReader.cs" />
-    <Compile Include="lib\api\ndef\recordtypes\RTDText.cs" />
-    <Compile Include="lib\api\ndef\TLVBlock.cs" />
-    <Compile Include="lib\api\ndef\tlvtypes\NDEFMessage.cs" />
-    <Compile Include="lib\api\ndef\tlvtypes\Terminator.cs" />
-    <Compile Include="lib\api\NFCCommand.cs" />
-    <Compile Include="lib\api\NFCOperation.cs" />
-    <Compile Include="lib\api\readers\ACR122.cs" />
-    <Compile Include="lib\api\readers\IReaderSignalControl.cs" />
-    <Compile Include="lib\api\readers\NFCReader.cs" />
-    <Compile Include="lib\api\Utility.cs" />
-    <Compile Include="lib\api\Winscard.cs" />
-    <Compile Include="lib\ticketing\encryption\TicketEncryption.cs" />
-    <Compile Include="lib\ticketing\orm\CreditTransaction.cs" />
-    <Compile Include="lib\ticketing\storage\IValidationStorage.cs" />
-    <Compile Include="lib\ticketing\IValidatorLocation.cs" />
-    <Compile Include="lib\ticketing\orm\EncryptableSmartTicket.cs" />
-    <Compile Include="lib\ticketing\storage\LocalDBStorage.cs" />
-    <Compile Include="lib\ticketing\orm\TicketValidation.cs" />
-    <Compile Include="lib\ticketing\TicketingService.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -190,7 +160,11 @@
       <Version>5.0.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="NFCReaderAPI">
+      <HintPath>..\NFCReaderAPI\bin\Debug\NFCReaderAPI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
