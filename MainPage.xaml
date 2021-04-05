@@ -6,10 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="561" Width="986">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="561" Width="1072">
 
     <Grid>
-        <TextBlock HorizontalAlignment="Left" Height="91" Margin="28,27,0,0" Text="{x:Bind _viewModel.Ticket, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="916"/>
+        <TextBlock HorizontalAlignment="Left" Height="91" Margin="28,27,0,0" Text="{x:Bind _viewModel.Ticket, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="1003"/>
         <Button x:Name="btnValidateTicket" Content="Validate Ticket" Height="45" Margin="28,343,0,0" Width="233" Click="btnValidateTicket_Click" VerticalAlignment="Top" />
         <Button x:Name="btnAddCredit" Content="Add credit" Height="45" Margin="28,143,0,0" VerticalAlignment="Top" Width="233" Click="btnAddCredit_Click" />
         <TextBox x:Name="txtboxCredit" HorizontalAlignment="Left" Height="45" Margin="286,143,0,0" Text="0" TextWrapping="Wrap" VerticalAlignment="Top" Width="75"/>
