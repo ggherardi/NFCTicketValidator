@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.Text;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -122,6 +123,19 @@ namespace NFCTicketValidator
         {
             _ticket = new EncryptableSmartTicket();
             _page = page;
+        }
+    }
+
+    public class ByteToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return value is byte[] ? BitConverter.ToString((byte[])value) : string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            return Encoding.Default.GetBytes(value as string);
         }
     }
 }
